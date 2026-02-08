@@ -9,6 +9,11 @@ const app = express();
 app.use(express.json());
 // Serve frontend website
 app.use(express.static(path.join(__dirname, "../")));
+// health route (keeps server awake)
+app.get("/ping", (req, res) => {
+  res.send("Server awake");
+});
+
 
 /* -------------------- CORS (IMPORTANT) -------------------- */
 app.use(cors({

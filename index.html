@@ -39,6 +39,12 @@
   </div>
 </section>
 
+<script>
+// Wake up backend server automatically
+fetch("https://smart-learning-website.onrender.com/ping")
+  .then(() => console.log("Server waking up..."))
+  .catch(() => console.log("Wake failed"));
+</script>
 
 </body>
 </html>
