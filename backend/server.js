@@ -2,9 +2,13 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
+const path = require("path");
+
 
 const app = express();
 app.use(express.json());
+// Serve frontend website
+app.use(express.static(path.join(__dirname, "../")));
 
 /* -------------------- CORS (IMPORTANT) -------------------- */
 app.use(cors({
@@ -148,6 +152,10 @@ app.delete("/bookings/:id", async (req, res) => {
 
 /* -------------------- SERVER -------------------- */
 const PORT = process.env.PORT || 5000;
+// Homepage route
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../index.html"));
+});
 
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
