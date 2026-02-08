@@ -50,11 +50,12 @@ app.post("/book", async (req, res) => {
   try {
     const { service, date, time, name, email, phone } = req.body;
 
+    // validation
     if (!service || !date || !time || !name || !email || !phone) {
-      return res.json({ success: false, message: "Missing details" });
+      return res.status(400).json({ success: false, message: "Missing details" });
     }
 
-    // ---------- SAVE BOOKING FIRST ----------
+    // ---------------- SAVE BOOKING FIRST ----------------
     const newBooking = new Booking({
       service,
       date,
@@ -67,12 +68,16 @@ app.post("/book", async (req, res) => {
     await newBooking.save();
     console.log("✅ Booking saved to MongoDB");
 
-    // ---------- SEND EMAIL (BUT DO NOT BREAK BOOKING) ----------
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER,
-      subject: "New Booking - Smart Learning",
-      text: `
+    // ---------------- SEND EMAIL (DO NOT BREAK BOOKING) ----------------
+    try {
+
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: process.env.EMAIL_USER,
+        subject: "New Booking - Smart Learning",
+        text: `
+New Booking Received
+
 Service: ${service}
 Date: ${date}
 Time: ${time}
@@ -80,23 +85,22 @@ Time: ${time}
 Student Name: ${name}
 Phone: ${phone}
 Email: ${email}
-      `
-    };
+        `
+      };
 
-    transporter.sendMail(mailOptions, (err, info) => {
-      if (err) {
-        console.log("⚠ Email failed but booking saved:", err.message);
-      } else {
-        console.log("📧 Email sent:", info.response);
-      }
-    });
+      await transporter.sendMail(mailOptions);
+      console.log("📧 Email sent successfully");
 
-    // ALWAYS SUCCESS AFTER SAVE
+    } catch (mailErr) {
+      console.log("⚠ Email failed BUT booking saved:", mailErr.message);
+    }
+
+    // FINAL RESPONSE
     res.json({ success: true });
 
   } catch (error) {
-    console.log("BOOKING ERROR:", error);
-    res.json({ success: false, message: "Booking failed" });
+    console.log("❌ BOOKING ERROR:", error);
+    res.status(500).json({ success: false, message: "Booking failed" });
   }
 });
 
@@ -111,8 +115,9 @@ app.get("/bookings", async (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log("🚀 Server running on port " + PORT);
 });
+
 
 /* Homepage */
 app.get("/", (req, res) => {
