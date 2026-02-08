@@ -31,27 +31,22 @@ const Booking = require("./models/Booking");
 /* -------------------- EMAIL (OPTIONAL) -------------------- */
 /* IMPORTANT: Email failure should NOT break booking */
 
-let transporter;
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // IMPORTANT
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
 
-try {
-  transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
-  });
-  console.log("Mail service ready");
-} catch {
-  console.log("Mail disabled");
-}
 
 /* =========================================================
    CREATE BOOKING  (MOST IMPORTANT FIX)
 ========================================================= */
 
 app.post("/book", async (req, res) => {
-
   try {
     const { service, date, time, name, email, phone } = req.body;
 
@@ -59,8 +54,7 @@ app.post("/book", async (req, res) => {
       return res.json({ success: false, message: "Missing details" });
     }
 
-    /* ---------- SAVE BOOKING FIRST ---------- */
-
+    // ---------- SAVE BOOKING FIRST ----------
     const newBooking = new Booking({
       service,
       date,
@@ -71,43 +65,41 @@ app.post("/book", async (req, res) => {
     });
 
     await newBooking.save();
-    console.log("✅ Booking SAVED to database");
+    console.log("✅ Booking saved to MongoDB");
 
-    /* ---------- TRY EMAIL (BUT DON'T BREAK) ---------- */
-
-    if (transporter) {
-      try {
-        await transporter.sendMail({
-          from: process.env.EMAIL_USER,
-          to: process.env.EMAIL_USER,
-          subject: "New Booking - Smart Learning",
-          text: `
+    // ---------- SEND EMAIL (BUT DO NOT BREAK BOOKING) ----------
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: process.env.EMAIL_USER,
+      subject: "New Booking - Smart Learning",
+      text: `
 Service: ${service}
 Date: ${date}
 Time: ${time}
 
-Name: ${name}
+Student Name: ${name}
 Phone: ${phone}
 Email: ${email}
-          `
-        });
+      `
+    };
 
-        console.log("📧 Email sent");
-
-      } catch (mailErr) {
-        console.log("⚠️ Email failed (ignored):", mailErr.message);
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.log("⚠ Email failed but booking saved:", err.message);
+      } else {
+        console.log("📧 Email sent:", info.response);
       }
-    }
+    });
 
-    /* ---------- SUCCESS RESPONSE ---------- */
-
+    // ALWAYS SUCCESS AFTER SAVE
     res.json({ success: true });
 
   } catch (error) {
-    console.log("❌ BOOKING SAVE ERROR:", error);
-    res.json({ success: false, message: "Database error" });
+    console.log("BOOKING ERROR:", error);
+    res.json({ success: false, message: "Booking failed" });
   }
 });
+
 
 /* -------------------- GET BOOKINGS -------------------- */
 app.get("/bookings", async (req, res) => {
