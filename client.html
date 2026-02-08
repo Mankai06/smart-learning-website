@@ -1,52 +1,98 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Client Details | Smart Learning</title>
+<meta charset="UTF-8">
+<title>Client Details | Smart Learning</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" type="image/png" href="images/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/png" href="images/logo.png">
+
+<style>
+.client{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin-top:60px;
+}
+.client-box{
+  width:900px;
+  display:flex;
+  gap:40px;
+}
+.client-form, .summary{
+  flex:1;
+  background:white;
+  padding:25px;
+  border-radius:10px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.1);
+}
+.client-form input{
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+.confirm-btn{
+  width:100%;
+  padding:14px;
+  background:#f28c28;
+  border:none;
+  color:white;
+  font-size:16px;
+  border-radius:6px;
+  cursor:pointer;
+  margin-top:15px;
+}
+.confirm-btn:hover{
+  background:#e07813;
+}
+.navbar{
+  background:#2d4f63;
+  color:white;
+  padding:15px;
+}
+.navbar a{
+  color:white;
+  margin-left:20px;
+  text-decoration:none;
+}
+</style>
 
 </head>
 <body>
 
-  <!-- NAVBAR -->
-  <nav class="navbar">
-    <div class="logo">Smart Learning</div>
-    <a href="index.html">Home</a>
-    <a href="services.html">Services</a>
-   
-  </nav>
+<!-- NAVBAR -->
 
-   
-  <!-- CLIENT PAGE -->
-  <section class="client">
-    
-    <!-- STEPS -->
-    
+<nav class="navbar">
+<div class="logo">Smart Learning</div>
+<a href="index.html">Home</a>
+<a href="services.html">Services</a>
+</nav>
 
-    <div class="client-box">
+<!-- CLIENT PAGE -->
 
-      <!-- FORM -->
-      <div class="client-form">
-  <h3>Your Details</h3>
+<section class="client">
+<div class="client-box">
 
-  <input id="name" type="text" placeholder="Full Name">
-  <input id="email" type="email" placeholder="Email">
-  <input id="phone" type="tel" placeholder="Phone">
+<!-- FORM -->
 
-  
+<div class="client-form">
+<h3>Your Details</h3>
 
-  <button type="button" class="confirm-btn" onclick="confirmBooking()">
-    Confirm Booking
-  </button>
+<input id="name" type="text" placeholder="Full Name">
+<input id="email" type="email" placeholder="Email">
+<input id="phone" type="tel" placeholder="Phone">
+
+<button class="confirm-btn" onclick="confirmBooking()">Confirm Booking</button>
+
 </div>
 
+<!-- SUMMARY -->
 
-      <!-- SUMMARY -->
-      <div class="summary">
-      
+<div class="summary">
 <h3>Booking Summary</h3>
 
 <p><strong>Service:</strong> <span id="service-name"></span></p>
@@ -55,67 +101,74 @@
 <p><strong>Duration:</strong> 1 Hour</p>
 <p><strong>Price:</strong> ₹100.00</p>
 
+</div>
 
-
-        
-      
-      </div>
-
-    </div>
-
-  </section>
-
+</div>
+</section>
 
 <script>
-async function confirmBooking() {
-  console.log("🚀 ConfirmBooking clicked");
 
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const phone = document.getElementById("phone").value.trim();
+// Show selected booking
+window.onload = function(){
 
-  if (!name || !email || !phone) {
-    alert("Please fill all details");
-    return;
-  }
+const service = localStorage.getItem("selectedService");
+const date = localStorage.getItem("selectedDate");
+const time = localStorage.getItem("selectedTime");
 
-  const service = localStorage.getItem("selectedService");
-  const date = localStorage.getItem("selectedDate");
-  const time = localStorage.getItem("selectedTime");
+if(!service || !date || !time){
+alert("Please select service first");
+window.location.href="services.html";
+return;
+}
 
-  if (!service || !date || !time) {
-    alert("Please select service first");
-    window.location.href = "services.html";
-    return;
-  }
+document.getElementById("service-name").innerText = service;
+document.getElementById("booking-date").innerText = date;
+document.getElementById("booking-time").innerText = time;
+};
 
-  const data = {
-    service,
-    date,
-    time,
-    name,
-    email,
-    phone
-  };
+// BOOKING FUNCTION
+async function confirmBooking(){
 
-  try {
-    // IMPORTANT: wait for server
-    const response = await fetch("https://smart-learning-website.onrender.com/book", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    });
+const name = document.getElementById("name").value.trim();
+const email = document.getElementById("email").value.trim();
+const phone = document.getElementById("phone").value.trim();
 
-    const result = await response.json();
+if(!name || !email || !phone){
+alert("Please fill all details");
+return;
+}
 
-    if (response.ok) {
+const service = localStorage.getItem("selectedService");
+const date = localStorage.getItem("selectedDate");
+const time = localStorage.getItem("selectedTime");
 
-      alert("🎉 Booking Successful!");
+try{
 
-      // WhatsApp message
-      const message =
+const response = await fetch("https://smart-learning-website.onrender.com/book",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+service,
+date,
+time,
+name,
+email,
+phone
+})
+});
+
+const result = await response.json();
+
+if(!response.ok){
+alert("Booking failed: "+result.message);
+return;
+}
+
+alert("Booking Successful 🎉");
+
+const message =
 `New Booking - Smart Learning
 
 Service: ${service}
@@ -126,71 +179,20 @@ Student Name: ${name}
 Phone: ${phone}
 Email: ${email}`;
 
-      const whatsappURL =
+const whatsappURL =
 `https://wa.me/919342530010?text=${encodeURIComponent(message)}`;
 
-      window.open(whatsappURL, "_blank");
+window.open(whatsappURL,"_blank");
 
-      window.location.href = "mybookings.html";
+window.location.href="mybookings.html";
 
-    } else {
-      alert("Server error: " + result.message);
-    }
-
-  } catch (error) {
-    console.error(error);
-    alert("⏳ Server is waking up... Please click Confirm again after 30 seconds.");
-  }
-}
-</script>
-
-  
-
-
-
-<script>
-
-// Load booking details from localStorage
-const service = localStorage.getItem("selectedService");
-const date = localStorage.getItem("selectedDate");
-const time = localStorage.getItem("selectedTime");
-
-// Safety check
-if(!service || !date || !time){
-    alert("Please select service, date and time first.");
-    window.location.href = "services.html";
+}catch(err){
+alert("Server waking up... Click confirm again after 20 seconds.");
+console.log(err);
 }
 
-// Show in booking summary
-document.getElementById("service-name").innerText = service;
-document.getElementById("booking-date").innerText = date;
-document.getElementById("booking-time").innerText = time;
-
+}
 </script>
-```html
-<script>
-
-window.onload = function(){
-
-    // get data from booking page
-    const service = localStorage.getItem("selectedService");
-    const date = localStorage.getItem("selectedDate");
-    const time = localStorage.getItem("selectedTime");
-
-    // show on screen
-    document.getElementById("service-name").innerText = service || "Not selected";
-    document.getElementById("booking-date").innerText = date || "Not selected";
-    document.getElementById("booking-time").innerText = time || "Not selected";
-
-};
-
-</script>
-```
-
-
-
-
-
 
 </body>
 </html>
