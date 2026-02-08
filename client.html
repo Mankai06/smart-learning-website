@@ -127,50 +127,75 @@ document.getElementById("service-name").innerText = service;
 document.getElementById("booking-date").innerText = date;
 document.getElementById("booking-time").innerText = time;
 };
+</script>
+
 
 // BOOKING FUNCTION
-async function confirmBooking(){
+<script>
 
-const name = document.getElementById("name").value.trim();
-const email = document.getElementById("email").value.trim();
-const phone = document.getElementById("phone").value.trim();
+async function confirmBooking() {
 
-if(!name || !email || !phone){
-alert("Please fill all details");
-return;
-}
+  const btn = document.querySelector(".confirm-btn");
+  btn.innerText = "Processing...";
+  btn.disabled = true;
 
-const service = localStorage.getItem("selectedService");
-const date = localStorage.getItem("selectedDate");
-const time = localStorage.getItem("selectedTime");
+  // get user inputs
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
 
-try{
+  if(!name || !email || !phone){
+    alert("Please fill all details");
+    btn.innerText = "Confirm Booking";
+    btn.disabled = false;
+    return;
+  }
 
-const response = await fetch("https://smart-learning-website.onrender.com/book",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-service,
-date,
-time,
-name,
-email,
-phone
-})
-});
+  // booking details from previous page
+  const service = localStorage.getItem("selectedService");
+  const date = localStorage.getItem("selectedDate");
+  const time = localStorage.getItem("selectedTime");
 
-const result = await response.json();
+  if(!service || !date || !time){
+    alert("Please select service and time first");
+    window.location.href = "services.html";
+    return;
+  }
 
-if(!response.ok){
-alert("Booking failed: "+result.message);
-return;
-}
+  const bookingData = {
+    service,
+    date,
+    time,
+    name,
+    email,
+    phone
+  };
 
-alert("Booking Successful 🎉");
+  try {
 
-const message =
+    // WAKE SERVER FIRST (very important for Render)
+    await fetch("https://smart-learning-website.onrender.com/ping");
+
+    // send booking
+    const response = await fetch("https://smart-learning-website.onrender.com/book", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(bookingData)
+    });
+
+    const result = await response.json();
+
+    if(!result.success){
+      alert("Booking failed. Please try again.");
+      btn.innerText = "Confirm Booking";
+      btn.disabled = false;
+      return;
+    }
+
+    // WhatsApp message
+    const message =
 `New Booking - Smart Learning
 
 Service: ${service}
@@ -181,20 +206,48 @@ Student Name: ${name}
 Phone: ${phone}
 Email: ${email}`;
 
-const whatsappURL =
-`https://wa.me/919342530010?text=${encodeURIComponent(message)}`;
+    const whatsappURL =
+      `https://wa.me/919342530010?text=${encodeURIComponent(message)}`;
 
-window.open(whatsappURL,"_blank");
+    window.open(whatsappURL, "_blank");
 
-window.location.href="mybookings.html";
+    alert("Booking Confirmed ✅");
 
-}catch(err){
-alert("Server waking up... Click confirm again after 20 seconds.");
-console.log(err);
+    // clear selected slot
+    localStorage.removeItem("selectedService");
+    localStorage.removeItem("selectedDate");
+    localStorage.removeItem("selectedTime");
+
+    window.location.href = "mybookings.html";
+
+  } catch(err){
+    console.log(err);
+    alert("Server sleeping... wait 30 seconds and click again.");
+    btn.innerText = "Confirm Booking";
+    btn.disabled = false;
+  }
 }
 
-}
+// show booking summary
+window.onload = function(){
+
+  const service = localStorage.getItem("selectedService");
+  const date = localStorage.getItem("selectedDate");
+  const time = localStorage.getItem("selectedTime");
+
+  if(!service || !date || !time){
+    alert("Please select a service first");
+    window.location.href = "services.html";
+    return;
+  }
+
+  document.getElementById("service-name").innerText = service;
+  document.getElementById("booking-date").innerText = date;
+  document.getElementById("booking-time").innerText = time;
+};
+
 </script>
+
 
 </body>
 </html>
