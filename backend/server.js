@@ -24,12 +24,10 @@ app.use(cors({
 
 /* -------------------- MongoDB -------------------- */
 /* PASTE YOUR OWN CONNECTION STRING HERE */
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
+
+mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("MongoDB Atlas Connected"))
-.catch(err => console.log("MongoDB Error:", err));
+.catch(err => console.log("Mongo Error:", err));
 
 /* -------------------- Booking Model -------------------- */
 const Booking = require("./models/Booking");
@@ -50,13 +48,17 @@ const transporter = nodemailer.createTransport({
 // =====================
 // CREATE BOOKING + EMAIL
 // =====================
+
 app.post("/book", async (req, res) => {
   try {
-
     const { service, date, time, name, email, phone } = req.body;
 
-    // 1️⃣ Save booking in MongoDB
-    const booking = new Booking({
+    if (!service || !date || !time || !name || !email || !phone) {
+      return res.json({ success: false, message: "Missing details" });
+    }
+
+    // Save booking to MongoDB
+    const newBooking = new Booking({
       service,
       date,
       time,
@@ -65,47 +67,26 @@ app.post("/book", async (req, res) => {
       phone
     });
 
-    await booking.save();
+    await newBooking.save();
 
-    console.log("Booking saved to database");
+    console.log("Booking saved:", newBooking);
 
-    // 2️⃣ Send Email to Owner
-    const mailOptions = {
-      from: "devamankaishree@gmail.com",
-      to: "devamankaishree@gmail.com",
-      subject: "📚 New Booking - Smart Learning",
-      text: `
-New Booking Received!
-
-Name: ${name}
-Phone: ${phone}
-Email: ${email}
-Service: ${service}
-Date: ${date}
-Time: ${time}
-      `
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    console.log("Owner email sent successfully");
-
-    // 3️⃣ Send success response
-    res.status(200).json({ message: "Booking confirmed & email sent!" });
+    res.json({ success: true });
 
   } catch (error) {
-    console.error("BOOKING ERROR:", error);
-    res.status(500).json({ message: "Booking failed" });
+    console.log("BOOKING ERROR:", error);
+    res.json({ success: false, message: "Booking failed" });
   }
 });
+
 
 /* =========================================================
    2) GET ALL BOOKINGS
 ========================================================= */
 app.get("/bookings", async (req, res) => {
   try {
-    const bookings = await Booking.find().sort({ _id: -1 });
-    res.json(bookings);
+    const Bookings = await Booking.find().sort({ _id: -1 });
+    res.json(Bookings);
   } catch (err) {
     res.status(500).json({ message: "Error fetching bookings" });
   }
@@ -160,6 +141,9 @@ app.delete("/bookings/:id", async (req, res) => {
 
 /* -------------------- SERVER -------------------- */
 const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => console.log("Server running on port " + PORT));
+
 // Homepage route
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../index.html"));
