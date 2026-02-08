@@ -1,21 +1,21 @@
-const express = require("express");
+ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
 const path = require("path");
 
-
 const app = express();
 app.use(express.json());
+
 // Serve frontend website
 app.use(express.static(path.join(__dirname, "../")));
+
 // health route (keeps server awake)
 app.get("/ping", (req, res) => {
   res.send("Server awake");
 });
 
-
-/* -------------------- CORS (IMPORTANT) -------------------- */
+/* -------------------- CORS -------------------- */
 app.use(cors({
   origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE"],
@@ -23,8 +23,6 @@ app.use(cors({
 }));
 
 /* -------------------- MongoDB -------------------- */
-/* PASTE YOUR OWN CONNECTION STRING HERE */
-
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("MongoDB Atlas Connected"))
 .catch(err => console.log("Mongo Error:", err));
@@ -32,32 +30,28 @@ mongoose.connect(process.env.MONGO_URI)
 /* -------------------- Booking Model -------------------- */
 const Booking = require("./models/Booking");
 
-/* -------------------- EMAIL CONFIG (Owner mail) -------------------- */
+/* -------------------- EMAIL CONFIG -------------------- */
 const transporter = nodemailer.createTransport({
   service: "gmail",
- auth: {
-  user: process.env.EMAIL_USER,
-  pass: process.env.EMAIL_PASS
-}
-
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
 });
 
 /* =========================================================
-   1) CREATE BOOKING
+   CREATE BOOKING  (FIXED VERSION)
 ========================================================= */
-// =====================
-// CREATE BOOKING + EMAIL
-// =====================
-
 app.post("/book", async (req, res) => {
   try {
+
     const { service, date, time, name, email, phone } = req.body;
 
     if (!service || !date || !time || !name || !email || !phone) {
       return res.json({ success: false, message: "Missing details" });
     }
 
-    // Save booking to MongoDB
+    // 1️⃣ SAVE BOOKING FIRST (MOST IMPORTANT)
     const newBooking = new Booking({
       service,
       date,
@@ -68,10 +62,36 @@ app.post("/book", async (req, res) => {
     });
 
     await newBooking.save();
-
     console.log("Booking saved:", newBooking);
 
+    // 2️⃣ IMMEDIATELY SEND SUCCESS TO WEBSITE
+    // (so user never sees failure)
     res.json({ success: true });
+
+    // 3️⃣ TRY EMAIL (BUT DO NOT BREAK BOOKING)
+    try {
+
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: "Smart Learning Booking Confirmed",
+        text: `Your booking is confirmed!
+
+Service: ${service}
+Date: ${date}
+Time: ${time}
+
+Thank you for choosing Smart Learning.`
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log("Email sent successfully");
+
+    } catch (mailError) {
+      // THIS IS THE MAIN FIX
+      // Gmail blocked on Render → we IGNORE it
+      console.log("Email failed but booking kept:", mailError.message);
+    }
 
   } catch (error) {
     console.log("BOOKING ERROR:", error);
@@ -79,9 +99,8 @@ app.post("/book", async (req, res) => {
   }
 });
 
-
 /* =========================================================
-   2) GET ALL BOOKINGS
+   GET BOOKINGS
 ========================================================= */
 app.get("/bookings", async (req, res) => {
   try {
@@ -93,7 +112,7 @@ app.get("/bookings", async (req, res) => {
 });
 
 /* =========================================================
-   3) UPDATE BOOKING
+   UPDATE BOOKING
 ========================================================= */
 app.put("/bookings/:id", async (req, res) => {
   try {
@@ -119,7 +138,7 @@ app.put("/bookings/:id", async (req, res) => {
 });
 
 /* =========================================================
-   4) DELETE BOOKING
+   DELETE BOOKING
 ========================================================= */
 app.delete("/bookings/:id", async (req, res) => {
   try {
@@ -139,16 +158,11 @@ app.delete("/bookings/:id", async (req, res) => {
   }
 });
 
-/* -------------------- SERVER -------------------- */
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => console.log("Server running on port " + PORT));
-
-// Homepage route
+/* -------------------- HOME -------------------- */
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../index.html"));
 });
 
-app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
-});
+/* -------------------- SERVER -------------------- */
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log("Server running on port " + PORT));
