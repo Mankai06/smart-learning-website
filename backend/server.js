@@ -18,12 +18,17 @@ app.get("/ping", (req, res) => {
 
 /* -------------------- MongoDB -------------------- */
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+// Start server FIRST (important for Render)
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("🚀 Server running on port " + PORT);
+});
+
+// THEN connect MongoDB (after server already alive)
+mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("✅ MongoDB Atlas Connected"))
-.catch(err => console.log("❌ MongoDB Error:", err));
+.catch(err => console.log("❌ Mongo Error:", err));
 
 /* -------------------- Booking Model -------------------- */
 const Booking = require("./models/Booking");
@@ -112,11 +117,6 @@ app.get("/bookings", async (req, res) => {
 });
 
 /* -------------------- SERVER -------------------- */
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, "0.0.0.0", () => {
-  console.log("🚀 Server running on port " + PORT);
-});
 
 
 /* Homepage */
