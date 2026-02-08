@@ -15,7 +15,7 @@ app.use(cors({
 
 /* -------------------- MongoDB -------------------- */
 /* PASTE YOUR OWN CONNECTION STRING HERE */
-mongoose.connect("mongodb+srv://devamankaishree_db_user:hARayX8OloPls08g@cluster0.tbftgtw.mongodb.net/bookings?appName=Cluster0")
+mongoose.connect("mongoose.connect(process.env.MONGO_URI);")
 .then(() => console.log("MongoDB Atlas Connected (ONLINE DATABASE)"))
 .catch(err => console.log("MongoDB connection error:", err));
 
@@ -25,10 +25,11 @@ const Booking = require("./models/Booking");
 /* -------------------- EMAIL CONFIG (Owner mail) -------------------- */
 const transporter = nodemailer.createTransport({
   service: "gmail",
-  auth: {
-    user: "devamankaishree@gmail.com",        // your gmail
-    pass: "weod zrbb gkas bcyk"               // your app password
-  }
+ auth: {
+  user: process.env.EMAIL_USER,
+  pass: process.env.EMAIL_PASS
+}
+
 });
 
 /* =========================================================
