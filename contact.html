@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Contact Us | Smart Learning</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/png" href="images/logo.png">
+
+
+<style>
+    
+
+.contact-container{
+    max-width: 1000px;
+    margin: 60px auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-height: fit-content;
+    
+}
+
+.contact-info{
+    background: #2f4f5f;
+    color: white;
+    padding: 35px;
+    border-radius: 12px;
+    margin: 40px;;
+}
+
+.contact-info h2{
+    margin-bottom: 20px;
+}
+
+.contact-info p{
+    margin: 12px 0;
+    font-size: 16px;
+}
+
+.contact-form{
+    background: white;
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.contact-form input,
+.contact-form textarea{
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    margin-bottom: 18px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+}
+
+.contact-form textarea{
+    height: 120px;
+    resize: none;
+}
+
+.contact-form button{
+    width: 100%;
+    background: #ff8c32;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    
+}
+
+.contact-form button:hover{
+    background: #e6761f;
+}
+
+.success{
+    color: green;
+    margin-top: 10px;
+    font-weight: 600;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar">
+    <div class="logo">Smart Learning</div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="services.html">Services</a>
+        <a href="mybookings.html">My Bookings</a>
+        <a href="contact.html">Contact</a>
+    </nav>
+</header>
+
+<div class="contact-container">
+
+    <!-- LEFT SIDE -->
+    <div class="contact-info">
+        <br><br>
+        <br>
+
+        <h2>Contact Smart Learning</h2>
+        <p><b>📍 Location:</b> Tamil Nadu, India</p>
+        <p><b>📞 Phone:</b> +91 9342530010</p>
+        <p><b>📧 Email:</b> devamankaishree@gmail.com</p>
+
+        <p style="margin-top:20px;">
+        If you have doubts about subjects, booking issues,
+        or want personal mentoring, you can contact us anytime.
+        We will respond within 24 hours.
+        </p>
+    </div>
+
+    <!-- RIGHT SIDE FORM -->
+    <div class="contact-form">
+        <br>
+        <br>
+        <h2>Send a Message</h2>
+
+        <input type="text" id="name" placeholder="Your Name">
+        <input type="email" id="email" placeholder="Your Email">
+        <textarea id="message" placeholder="Write your message..."></textarea>
+
+        <button id="sendBtn">Send Message</button>
+
+        <div id="successMsg" class="success"></div>
+    </div>
+
+</div>
+
+<script>
+document.getElementById("sendBtn").addEventListener("click", async function(){
+
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const message = document.getElementById("message").value.trim();
+
+  if(!name || !email || !message){
+    alert("Please fill all fields");
+    return;
+  }
+
+  try{
+    const res = await fetch("http://localhost:5000/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ name, email, message })
+    });
+
+    const data = await res.json();
+    alert(data.message);
+
+    // clear form after success
+    document.getElementById("name").value="";
+    document.getElementById("email").value="";
+    document.getElementById("message").value="";
+
+  }catch(err){
+    alert("Server not connected. Start backend server.");
+  }
+});
+</script>
+
+
+</body>
+</html>

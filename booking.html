@@ -1,0 +1,127 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Book Appointment | Smart Learning</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="images/logo.png">
+
+
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="logo">Smart Learning</div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="mybookings.html">My Bookings</a>
+
+
+    </div>
+  </nav>
+
+  <!-- BOOKING SECTION -->
+  <section class="booking">
+
+    <div class="booking-box">
+
+      <!-- DATE -->
+      <div class="calendar-box">
+        <label>Select Date</label><br><br>
+        <input type="date" id="calendar">
+      </div>
+
+      <br>
+
+      <!-- TIME SLOTS -->
+      <h3>Select Time</h3>
+      <div class="slots">
+        <button class="slot" onclick="selectTime('4:00 pm')">4:00 pm</button>
+        <button class="slot" onclick="selectTime('5:00 pm')">5:00 pm</button>
+        <button class="slot" onclick="selectTime('6:00 pm')">6:00 pm</button>
+        <button class="slot" onclick="selectTime('7:00 pm')">7:00 pm</button>
+        <button class="slot" onclick="selectTime('8:00 pm')">8:00 pm</button>
+        <button class="slot" onclick="selectTime('9:00 pm')">9:00 pm</button>
+      </div>
+
+    </div>
+
+    <br><br>
+
+    <button class="submit-btn" onclick="goToClient()">Submit</button>
+
+  </section>
+
+
+<script>
+
+/* ---------- CHECK SERVICE SELECTED ---------- */
+window.onload = function(){
+
+    const service = localStorage.getItem("selectedService");
+
+    if(!service){
+        alert("Please choose a service first!");
+        window.location.href = "services.html";
+        return;
+    }
+
+    /* store date */
+    const calendar = document.getElementById("calendar");
+
+    calendar.addEventListener("change", function(){
+        localStorage.setItem("selectedDate", this.value);
+    });
+};
+
+
+/* ---------- SELECT TIME ---------- */
+function selectTime(time){
+
+    localStorage.setItem("selectedTime", time);
+
+    // highlight selected button
+    const buttons = document.querySelectorAll(".slot");
+    buttons.forEach(btn => btn.style.background = "#eee");
+
+    event.target.style.background = "#2ecc71";
+}
+
+
+/* ---------- SUBMIT ---------- */
+function goToClient(){
+
+    const service = localStorage.getItem("selectedService");
+    const date = localStorage.getItem("selectedDate");
+    const time = localStorage.getItem("selectedTime");
+
+    if(!service){
+        alert("Please choose a service first");
+        window.location.href = "services.html";
+        return;
+    }
+
+    if(!date){
+        alert("Please select a date");
+        return;
+    }
+
+    if(!time){
+        alert("Please select a time slot");
+        return;
+    }
+
+    window.location.href = "client.html";
+}
+
+</script>
+
+</body>
+</html>
+```

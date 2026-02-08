@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Client Details | Smart Learning</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="images/logo.png">
+
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="logo">Smart Learning</div>
+    <a href="index.html">Home</a>
+    <a href="services.html">Services</a>
+   
+  </nav>
+
+   
+  <!-- CLIENT PAGE -->
+  <section class="client">
+    
+    <!-- STEPS -->
+    
+
+    <div class="client-box">
+
+      <!-- FORM -->
+      <div class="client-form">
+  <h3>Your Details</h3>
+
+  <input id="name" type="text" placeholder="Full Name">
+  <input id="email" type="email" placeholder="Email">
+  <input id="phone" type="tel" placeholder="Phone">
+
+  
+
+  <button type="button" class="confirm-btn" onclick="confirmBooking()">
+    Confirm Booking
+  </button>
+</div>
+
+
+      <!-- SUMMARY -->
+      <div class="summary">
+      
+<h3>Booking Summary</h3>
+
+<p><strong>Service:</strong> <span id="service-name"></span></p>
+<p><strong>Date:</strong> <span id="booking-date"></span></p>
+<p><strong>Time:</strong> <span id="booking-time"></span></p>
+<p><strong>Duration:</strong> 1 Hour</p>
+<p><strong>Price:</strong> ₹100.00</p>
+
+
+
+        
+      
+      </div>
+
+    </div>
+
+  </section>
+
+
+<script>
+  
+
+
+function confirmBooking() {
+  console.log("🚀 ConfirmBooking clicked");
+ 
+    
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  
+
+  if (!name || !email || !phone) {
+    alert("Please fill all details");
+    return;
+  }
+
+  
+  
+
+  const service = localStorage.getItem("selectedService");
+if (!service) {
+  alert("Please select a service first");
+  window.location.href = "services.html";
+  return;
+}
+
+  const data = {
+    service: service,
+    date: "2026-02-05",
+    time: "10:00",
+    name,
+    email,
+    phone
+  };
+  console.log("📤 Sending data:", data);
+
+
+  fetch("http://localhost:5000/book", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  })
+  .then(result => {
+
+    const service = localStorage.getItem("selectedService");
+    const date = localStorage.getItem("selectedDate");
+    const time = localStorage.getItem("selectedTime");
+
+    const message =
+`New Booking - Smart Learning
+
+Service: ${service}
+Date: ${date}
+Time: ${time}
+
+Student Name: ${name}
+Phone: ${phone}
+Email: ${email}`;
+
+    const whatsappNumber = "919342530010";  // ← your number
+
+    const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
+    // open whatsapp
+    window.open(whatsappURL, "_blank");
+
+    // then go to bookings page
+    window.location.href = "mybookings.html";
+})
+
+  .catch(err => {
+    console.error("Booking error:", err);
+    alert("Booking failed. Try different time or service.");
+  });
+}
+</script>
+<script>
+
+// Load booking details from localStorage
+const service = localStorage.getItem("selectedService");
+const date = localStorage.getItem("selectedDate");
+const time = localStorage.getItem("selectedTime");
+
+// Safety check
+if(!service || !date || !time){
+    alert("Please select service, date and time first.");
+    window.location.href = "services.html";
+}
+
+// Show in booking summary
+document.getElementById("service-name").innerText = service;
+document.getElementById("booking-date").innerText = date;
+document.getElementById("booking-time").innerText = time;
+
+</script>
+```html
+<script>
+
+window.onload = function(){
+
+    // get data from booking page
+    const service = localStorage.getItem("selectedService");
+    const date = localStorage.getItem("selectedDate");
+    const time = localStorage.getItem("selectedTime");
+
+    // show on screen
+    document.getElementById("service-name").innerText = service || "Not selected";
+    document.getElementById("booking-date").innerText = date || "Not selected";
+    document.getElementById("booking-time").innerText = time || "Not selected";
+
+};
+
+</script>
+```
+
+
+
+
+
+
+</body>
+</html>

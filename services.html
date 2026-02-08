@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Services | Smart Learning</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="images/logo.png">
+
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="logo">Smart Learning</div>
+    <a href="index.html">Home</a>
+    <a href="booking.html">Services</a>
+    <a href="mybookings.html">My Bookings</a>
+     <a href="contact.html">Contact</a>
+  </nav>
+  </nav>
+
+  <!-- SERVICES SECTION -->
+  <section class="services">
+    <br>
+    <br>
+    <h2>Select a Service</h2>
+
+    <div class="service-grid">
+
+      <div class="service-card">
+        <h3>Math Tutoring Session</h3>
+        <p class="time">⏱ 1 hr</p>
+        <p class="price">₹100.00</p>
+        <button class="select-btn" onclick="selectService('Math Tutoring Session')">Select</button>
+
+        
+
+      
+      </div>
+
+      <div class="service-card">
+        <h3>Study Strategy Assessment</h3>
+        <p class="time">⏱ 1 hr</p>
+        <p class="price">₹100.00</p>
+       <button class="select-btn" onclick="selectService('Study Strategy Assessment')">Select</button>
+
+        
+      </div>
+
+      <div class="service-card">
+        <h3>Homework Help Session</h3>
+        <p class="time">⏱ 1 hr</p>
+        <p class="price">₹100.00</p>
+       <button class="select-btn" onclick="selectService('Homework Help Session')">Select</button>
+
+        
+
+      </div>
+
+      <div class="service-card">
+        <h3>Language Practice</h3>
+        <p class="time">⏱ 1 hr</p>
+        <p class="price">₹100.00</p>
+        <button class="select-btn" onclick="selectService('Language Practice')">Select</button>
+
+       
+
+      </div>
+
+      <div class="service-card">
+        <h3>Physics</h3>
+        <p class="time">⏱ 1 hr</p>
+        <p class="price">₹100.00</p>
+         <button class="select-btn" onclick="selectService('Physics')">Select</button>
+
+  
+
+
+      </div>
+
+      <div class="service-card">
+        <h3>Computer</h3>
+        <p class="time">⏱ 1 hr</p>
+        <p class="price">₹100.00</p>
+       <button class="select-btn" onclick="selectService('Computer')">Select</button>
+      
+       
+      </div>
+      <div class="service-card">
+        <h3>Networking </h3>
+        <p class="time">⏱ 1 hr</p>
+        <p class="price">₹100.00</p>
+       <button class="select-btn" onclick="selectService('Networking')">Select</button>
+        
+
+      </div>
+
+      <div class="service-card">
+        <h3>IOT </h3>
+        <p class="time">⏱ 1 hr</p>
+        <p class="price">₹100.00</p>
+       <button class="select-btn" onclick="selectService('IOT')">Select</button>
+
+      </div>
+
+       <div class="service-card">
+        <h3>AI</h3>
+        <p class="time">⏱ 1 hr</p>
+        <p class="price">₹100.00</p>
+        <button class="select-btn" onclick="selectService('AI')">Select</button>
+
+      </div>
+      <div class="service-card">
+        <h3>Cyber Security Basics</h3>
+        <p class="time">⏱ 1 hr</p>
+        <p class="price">₹100.00</p>
+      <button class="select-btn" onclick="selectService('Cyber Security Basics')">Select</button>
+        
+
+       
+      </div>
+      <div class="service-card">
+        <h3>Data Science</h3>
+        <p class="time">⏱ 1 hr</p>
+        <p class="price">₹100.00</p>
+       <button class="select-btn" onclick="selectService('Data Science')">Select</button>
+        
+      </div>
+      <div class="service-card">
+        <h3>Mock Interview </h3>
+        <p class="time">⏱ 1 hr</p>
+        <p class="price">₹100.00</p>
+       <button class="select-btn" onclick="selectService('Mock Interview')">Select</button>
+
+      </div>
+      <div class="service-card">
+        <h3>Presentation (Speech)</h3>
+        <p class="time">⏱ 1 hr</p>
+        <p class="price">₹100.00</p>
+       <button class="select-btn" onclick="selectService('Presentation (Speech)')">Select</button>
+        
+
+
+      </div>
+      <div class="service-card">
+        <h3>Powerpoint </h3>
+        <p class="time">⏱ 1 hr</p>
+        <p class="price">₹100.00</p>
+       <button class="select-btn" onclick="selectService('Powerpoint')">Select</button>
+
+      </div>
+       <div class="service-card">
+        <h3>HTML</h3>
+        <p class="time">⏱ 1 hr</p>
+        <p class="price">₹100.00</p>
+       <button class="select-btn" onclick="selectService('HTML')">Select</button>
+      
+       
+      </div>
+
+
+
+
+
+    </div>
+  </section>
+  <script>
+function selectService(serviceName) {
+   console.log("Selected service:", serviceName);
+  localStorage.setItem("selectedService", serviceName);
+  window.location.href = "booking.html";
+}
+</script>
+
+
+</body>
+</html>
