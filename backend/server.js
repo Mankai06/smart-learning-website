@@ -50,17 +50,15 @@ const transporter = nodemailer.createTransport({
 /* =========================================================
    CREATE BOOKING  (MOST IMPORTANT FIX)
 ========================================================= */
-
 app.post("/book", async (req, res) => {
   try {
     const { service, date, time, name, email, phone } = req.body;
 
-    // validation
     if (!service || !date || !time || !name || !email || !phone) {
       return res.status(400).json({ success: false, message: "Missing details" });
     }
 
-    // ---------------- SAVE BOOKING FIRST ----------------
+    // -------- SAVE BOOKING FIRST --------
     const newBooking = new Booking({
       service,
       date,
@@ -71,16 +69,17 @@ app.post("/book", async (req, res) => {
     });
 
     await newBooking.save();
-    console.log("✅ Booking saved to MongoDB");
+    console.log("Booking saved to MongoDB");
 
-    // ---------------- SEND EMAIL (DO NOT BREAK BOOKING) ----------------
-    try {
+    // -------- RESPOND TO WEBSITE IMMEDIATELY --------
+    res.json({ success: true });
 
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: process.env.EMAIL_USER,
-        subject: "New Booking - Smart Learning",
-        text: `
+    // -------- SEND EMAIL IN BACKGROUND (VERY IMPORTANT) --------
+    transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: process.env.EMAIL_USER,
+      subject: "New Booking - Smart Learning",
+      text: `
 New Booking Received
 
 Service: ${service}
@@ -90,24 +89,20 @@ Time: ${time}
 Student Name: ${name}
 Phone: ${phone}
 Email: ${email}
-        `
-      };
-
-      await transporter.sendMail(mailOptions);
-      console.log("📧 Email sent successfully");
-
-    } catch (mailErr) {
-      console.log("⚠ Email failed BUT booking saved:", mailErr.message);
-    }
-
-    // FINAL RESPONSE
-    res.json({ success: true });
+      `
+    }).then(() => {
+      console.log("Email sent successfully");
+    }).catch(err => {
+      console.log("Email failed but booking already saved:", err.message);
+    });
 
   } catch (error) {
-    console.log("❌ BOOKING ERROR:", error);
+    console.log("BOOKING ERROR:", error);
     res.status(500).json({ success: false, message: "Booking failed" });
   }
 });
+
+
 
 
 /* -------------------- GET BOOKINGS -------------------- */
@@ -117,7 +112,9 @@ app.get("/bookings", async (req, res) => {
 });
 
 /* -------------------- SERVER -------------------- */
-
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("Server running on port " + PORT);
+});
 
 /* Homepage */
 app.get("/", (req, res) => {
