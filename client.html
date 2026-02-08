@@ -134,12 +134,18 @@ document.getElementById("booking-time").innerText = time;
 <script>
 async function confirmBooking() {
 
+  const btn = document.querySelector(".confirm-btn");
+  btn.innerText = "Booking...";
+  btn.disabled = true;
+
   const name = document.getElementById("name").value.trim();
   const email = document.getElementById("email").value.trim();
   const phone = document.getElementById("phone").value.trim();
 
   if (!name || !email || !phone) {
     alert("Please fill all details");
+    btn.innerText = "Confirm Booking";
+    btn.disabled = false;
     return;
   }
 
@@ -148,16 +154,23 @@ async function confirmBooking() {
   const time = localStorage.getItem("selectedTime");
 
   if (!service || !date || !time) {
-    alert("Please select service, date and time first");
+    alert("Please select service first");
     window.location.href = "services.html";
     return;
   }
 
-  const data = { service, date, time, name, email, phone };
+  const data = {
+    service,
+    date,
+    time,
+    name,
+    email,
+    phone
+  };
 
   try {
 
-    const response = await fetch("/book", {
+    const response = await fetch("https://smart-learning-website.onrender.com/book", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -167,16 +180,12 @@ async function confirmBooking() {
 
     const result = await response.json();
 
-    // IMPORTANT
-    if (!result.success) {
-      alert("Booking failed: " + result.message);
-      return;
-    }
+    /* ----- ONLY AFTER SERVER CONFIRMS ----- */
+    if(result.success){
 
-    // ===== ONLY IF SAVED SUCCESSFULLY =====
-    alert("Booking Confirmed ✅");
+      alert("Booking Confirmed ✅");
 
-    const message =
+      const message =
 `New Booking - Smart Learning
 
 Service: ${service}
@@ -187,15 +196,23 @@ Student Name: ${name}
 Phone: ${phone}
 Email: ${email}`;
 
-    const whatsappNumber = "919342530010";
-    const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+      const whatsappURL =
+      `https://wa.me/919342530010?text=${encodeURIComponent(message)}`;
 
-    window.open(whatsappURL, "_blank");
-    window.location.href = "mybookings.html";
+      window.open(whatsappURL, "_blank");
 
-  } catch (err) {
-    console.error(err);
-    alert("Server not responding. Please try again in 20 seconds.");
+      window.location.href = "mybookings.html";
+
+    }else{
+      alert("Booking failed: " + result.message);
+      btn.innerText = "Confirm Booking";
+      btn.disabled = false;
+    }
+
+  } catch (error) {
+    alert("Server not responding. Wait 30 seconds and try again.");
+    btn.innerText = "Confirm Booking";
+    btn.disabled = false;
   }
 }
 </script>
