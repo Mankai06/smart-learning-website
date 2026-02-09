@@ -25,10 +25,12 @@ app.get("/ping", (req, res) => {
 
 
 /* -------------------- MONGODB CONNECTION -------------------- */
-mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log("✅ MongoDB Atlas Connected"))
-.catch(err => console.log("❌ MongoDB Error:", err));
-
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log("MongoDB Atlas Connected ✅"))
+.catch(err => console.log("Mongo Error ❌:", err));
 
 /* -------------------- BOOKING MODEL -------------------- */
 const Booking = require("./models/Booking");
@@ -111,6 +113,10 @@ Email: ${email}`
 /* =========================================================
    GET ALL BOOKINGS
 ========================================================= */
+app.get("/api", (req, res) => {
+  res.json({ status: "Backend working" });
+});
+
 app.get("/bookings", async (req, res) => {
   try {
     const bookings = await Booking.find().sort({ _id: -1 });
@@ -164,8 +170,9 @@ app.delete("/bookings/:id", async (req, res) => {
 
 
 /* -------------------- SERVER START -------------------- */
-const PORT = process.env.PORT || 10000;
+// IMPORTANT FOR RENDER HOSTING
+const PORT = process.env.PORT;
 
-app.listen(PORT, () => {
-  console.log("🚀 Server running on port " + PORT);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("Server is LIVE on Render 🚀");
 });
