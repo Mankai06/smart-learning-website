@@ -62,9 +62,8 @@
 </style>
 
 </head>
-<body>
 
-<!-- NAVBAR -->
+<body>
 
 <nav class="navbar">
 <div class="logo">Smart Learning</div>
@@ -72,12 +71,8 @@
 <a href="services.html">Services</a>
 </nav>
 
-<!-- CLIENT PAGE -->
-
 <section class="client">
 <div class="client-box">
-
-<!-- FORM -->
 
 <div class="client-form">
 <h3>Your Details</h3>
@@ -86,23 +81,18 @@
 <input id="email" type="email" placeholder="Email">
 <input id="phone" type="tel" placeholder="Phone">
 
-<button type="button" class="confirm-btn" onclick="confirmBooking()">
-  Confirm Booking (First click may take 30s ⏳)
+<button type="button" class="confirm-btn" id="bookBtn">
+Confirm Booking (First click may take 30s ⏳)
 </button>
-
 </div>
-
-<!-- SUMMARY -->
 
 <div class="summary">
 <h3>Booking Summary</h3>
-
 <p><strong>Service:</strong> <span id="service-name"></span></p>
 <p><strong>Date:</strong> <span id="booking-date"></span></p>
 <p><strong>Time:</strong> <span id="booking-time"></span></p>
 <p><strong>Duration:</strong> 1 Hour</p>
 <p><strong>Price:</strong> ₹100.00</p>
-
 </div>
 
 </div>
@@ -110,9 +100,8 @@
 
 <script>
 
-// Show selected booking
+/* ---------- LOAD BOOKING DETAILS ---------- */
 window.onload = function(){
-
 const service = localStorage.getItem("selectedService");
 const date = localStorage.getItem("selectedDate");
 const time = localStorage.getItem("selectedTime");
@@ -127,65 +116,50 @@ document.getElementById("service-name").innerText = service;
 document.getElementById("booking-date").innerText = date;
 document.getElementById("booking-time").innerText = time;
 };
-</script>
 
+/* ---------- BOOKING FUNCTION ---------- */
+document.getElementById("bookBtn").addEventListener("click", confirmBooking);
 
-// BOOKING FUNCTION
-<script>
 async function confirmBooking() {
 
-  const btn = document.querySelector(".confirm-btn");
-  btn.innerText = "Booking...";
-  btn.disabled = true;
+const btn = document.getElementById("bookBtn");
+btn.innerText = "Booking...";
+btn.disabled = true;
 
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const phone = document.getElementById("phone").value.trim();
+const name = document.getElementById("name").value.trim();
+const email = document.getElementById("email").value.trim();
+const phone = document.getElementById("phone").value.trim();
 
-  if (!name || !email || !phone) {
-    alert("Please fill all details");
-    btn.innerText = "Confirm Booking";
-    btn.disabled = false;
-    return;
-  }
+if (!name || !email || !phone) {
+alert("Please fill all details");
+btn.innerText = "Confirm Booking";
+btn.disabled = false;
+return;
+}
 
-  const service = localStorage.getItem("selectedService");
-  const date = localStorage.getItem("selectedDate");
-  const time = localStorage.getItem("selectedTime");
+const service = localStorage.getItem("selectedService");
+const date = localStorage.getItem("selectedDate");
+const time = localStorage.getItem("selectedTime");
 
-  if (!service || !date || !time) {
-    alert("Please select service first");
-    window.location.href = "services.html";
-    return;
-  }
+try {
 
-  const data = {
-    service,
-    date,
-    time,
-    name,
-    email,
-    phone
-  };
+const response = await fetch("https://smart-learning-website.onrender.com/book", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ service, date, time, name, email, phone })
+});
 
-  try {
+if(!response.ok){
+throw new Error("Server error");
+}
 
-    const response = await fetch("https://smart-learning-website.onrender.com/book", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    });
+const result = await response.json();
 
-    const result = await response.json();
+if(result.success){
 
-    /* ----- ONLY AFTER SERVER CONFIRMS ----- */
-    if(result.success){
+alert("Booking Confirmed ✅");
 
-      alert("Booking Confirmed ✅");
-
-      const message =
+const message =
 `New Booking - Smart Learning
 
 Service: ${service}
@@ -196,28 +170,30 @@ Student Name: ${name}
 Phone: ${phone}
 Email: ${email}`;
 
-      const whatsappURL =
-      `https://wa.me/919342530010?text=${encodeURIComponent(message)}`;
+const whatsappURL =
+`https://wa.me/919342530010?text=${encodeURIComponent(message)}`;
 
-      window.open(whatsappURL, "_blank");
+window.open(whatsappURL, "_blank");
 
-      window.location.href = "mybookings.html";
+/* redirect after save */
+setTimeout(()=>{
+window.location.href="mybookings.html";
+},1500);
 
-    }else{
-      alert("Booking failed: " + result.message);
-      btn.innerText = "Confirm Booking";
-      btn.disabled = false;
-    }
+}else{
+alert(result.message || "Booking failed");
+btn.innerText = "Confirm Booking";
+btn.disabled = false;
+}
 
-  } catch (error) {
-    alert("Server not responding. Wait 30 seconds and try again.");
-    btn.innerText = "Confirm Booking";
-    btn.disabled = false;
-  }
+} catch (err) {
+alert("Server sleeping 😴\nWait 30 seconds and click again.");
+btn.innerText = "Confirm Booking";
+btn.disabled = false;
+}
+
 }
 </script>
-
-
 
 </body>
 </html>
