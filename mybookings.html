@@ -150,7 +150,7 @@ function updateBooking(id){
   const date = document.getElementById(`date-${id}`).value;
   const time = document.getElementById(`time-${id}`).value;
 
-  fetch("https://smart-learning-website.onrender.com"),{
+  fetch("https://smart-learning-website.onrender.com/bookings"),{
     method:"PUT",
     headers:{
       "Content-Type":"application/json"
@@ -173,7 +173,8 @@ function deleteBooking(id){
 
   if(!confirm("Are you sure you want to delete this booking?")) return;
 
- fetch("https://smart-learning-website.onrender.com/bookings"),{
+ fetch("https://smart-learning-website.onrender.com/bookings")
+,{
   
     method:"DELETE"
   }

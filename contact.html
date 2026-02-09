@@ -148,7 +148,8 @@ document.getElementById("sendBtn").addEventListener("click", async function(){
   }
 
   try{
-    const res = await fetch("https://smart-learning-website.onrender.com/contact", {
+    const res = await fetch("https://smart-learning-website.onrender.com/contact",{
+
       method: "POST",
       headers: {
         "Content-Type": "application/json"
