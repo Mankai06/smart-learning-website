@@ -173,9 +173,9 @@ function deleteBooking(id){
 
   if(!confirm("Are you sure you want to delete this booking?")) return;
 
-  fetch(`http://localhost:5000/bookings/${id}`,{
+ fetch("https://smart-learning-website.onrender.com/bookings"),{
     method:"DELETE"
-  })
+  }
   .then(res=>res.json())
   .then(data=>{
     alert(data.message);
