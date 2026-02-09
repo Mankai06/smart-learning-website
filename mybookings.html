@@ -93,22 +93,26 @@ button{
 
 <script>
 
-const API = "https://smart-learning-website.onrender.com";
-
 // protect admin page
 if (localStorage.getItem("adminLoggedIn") !== "true") {
   window.location.href = "admin-login.html";
 }
 
-/* ================= LOAD BOOKINGS ================= */
+/* ---------------- LOAD BOOKINGS ---------------- */
 
-async function loadBookings(){
-  try{
-    const res = await fetch(API + "/bookings");
+async function loadBookings() {
+  try {
+
+    const res = await fetch("https://smart-learning-website.onrender.com/bookings");
     const data = await res.json();
 
     const table = document.getElementById("bookingTable");
     table.innerHTML = "";
+
+    if(data.length === 0){
+      table.innerHTML = "<tr><td colspan='7'>No bookings yet</td></tr>";
+      return;
+    }
 
     data.forEach(b => {
 
@@ -138,58 +142,47 @@ async function loadBookings(){
       table.appendChild(row);
     });
 
-  }catch(err){
-    alert("Cannot load bookings. Server sleeping. Refresh after 30 seconds.");
+  } catch(err){
+    alert("Cannot load bookings. First open /ping once to wake server.");
   }
 }
 
-loadBookings();
+window.onload = loadBookings;
 
-/* ================= UPDATE ================= */
+/* ---------------- UPDATE ---------------- */
 
 async function updateBooking(id){
 
   const date = document.getElementById(`date-${id}`).value;
   const time = document.getElementById(`time-${id}`).value;
 
-  try{
-    const res = await fetch(API + "/bookings/" + id,{
-      method:"PUT",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({date,time})
-    });
+  const res = await fetch(`https://smart-learning-website.onrender.com/bookings/${id}`,{
+    method:"PUT",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({date,time})
+  });
 
-    const data = await res.json();
-    alert(data.message);
-
-  }catch{
-    alert("Update failed");
-  }
+  const data = await res.json();
+  alert(data.message);
+  loadBookings();
 }
 
-/* ================= DELETE ================= */
+/* ---------------- DELETE ---------------- */
 
 async function deleteBooking(id){
 
-  if(!confirm("Are you sure you want to delete this booking?")) return;
+  if(!confirm("Delete this booking?")) return;
 
-  try{
-    const res = await fetch(API + "/bookings/" + id,{
-      method:"DELETE"
-    });
+  const res = await fetch(`https://smart-learning-website.onrender.com/bookings/${id}`,{
+    method:"DELETE"
+  });
 
-    const data = await res.json();
-    alert(data.message);
-    loadBookings();
-
-  }catch{
-    alert("Delete failed");
-  }
+  const data = await res.json();
+  alert(data.message);
+  loadBookings();
 }
 
-/* ================= LOGOUT ================= */
+/* ---------------- LOGOUT ---------------- */
 
 function logout(){
   localStorage.removeItem("adminLoggedIn");
@@ -197,6 +190,7 @@ function logout(){
 }
 
 </script>
+
 
 </body>
 </html>
