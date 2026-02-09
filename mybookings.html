@@ -100,7 +100,7 @@ if (localStorage.getItem("adminLoggedIn") !== "true") {
 }
 
 // LOAD BOOKINGS
-fetch("https://smart-learning-website.onrender.com/bookings")
+fetch("https://smart-learning-website.onrender.com")
 .then(res => res.json())
 .then(data => {
 
@@ -150,7 +150,7 @@ function updateBooking(id){
   const date = document.getElementById(`date-${id}`).value;
   const time = document.getElementById(`time-${id}`).value;
 
-  fetch("https://smart-learning-website.onrender.com/bookings"),{
+  fetch("https://smart-learning-website.onrender.com"),{
     method:"PUT",
     headers:{
       "Content-Type":"application/json"
